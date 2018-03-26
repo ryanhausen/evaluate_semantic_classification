@@ -1,0 +1,2 @@
+This directory examines how the predicted values of a single pixel change as
+it moves through the prediction map of the classifier.
