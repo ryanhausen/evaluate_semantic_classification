@@ -124,7 +124,6 @@ probs_grid = [[], []]
 data_reductions = [
     ('Mean', reductions.mean),
     ('Max', reductions.max),
-    ('Standard Deviation', reductions.std)
 ]
 
 for i, (op_name, op) in enumerate(data_reductions):
@@ -133,37 +132,37 @@ for i, (op_name, op) in enumerate(data_reductions):
             width=GRAPH_WIDTH,
             height=GRAPH_HEIGHT,
             toolbar_location='above',
-            title=f'{op_name} Probabilities Per Class')
-    items = []
-    for morphology in columns[2:]:
-        reduction_op = op(morphology)
+            title=f'Sum({op_name}()) Probabilities Per Class / Background')
 
-        canvas = datashader.Canvas(plot_width=x_end-x_start,
-                                   plot_height=y_end-y_start,
-                                   x_range=[x_start, x_end],
-                                   y_range=[y_start, y_end])
+    reduction_op = reductions.summary(sph=op('Spheroid'),
+                                      dk=op('Disk'),
+                                      irr=op('Irregular'),
+                                      ps=op('Point Source'),
+                                      unk=op('Unknown'),
+                                      bkg=op('Background'))
 
-        agg = canvas.points(data, 'x', 'y', agg=reduction_op)
-        img = t_func.shade(agg,
-                           cmap=Inferno256,
-                           span=[0,0.5] if op_name=='Standard Deviation' else [0,1],
-                           how='linear')
+    canvas = datashader.Canvas(plot_width=x_end-x_start,
+                            plot_height=y_end-y_start,
+                            x_range=[x_start, x_end],
+                            y_range=[y_start, y_end])
 
-        img_plt = f.image_rgba(image=[img.data],
-                            x=x_start,
-                            y=y_start,
-                            dw=width,
-                            dh=height,
-                            visible=morphology=='Disk')
+    agg = canvas.points(data, 'x', 'y', agg=reduction_op)
 
-        items.append((morphology, [img_plt]))
+    vals = np.add(agg.sph, agg.dk)
+    vals = np.add(vals, agg.irr)
+    vals = np.add(vals, agg.ps)
+    vals = np.add(vals, agg.unk)
+    vals = np.divide(vals, agg.bkg)
 
-    legend = Legend(items=items,
-                    location=(0,250),
-                    click_policy='hide',
-                    )
+    img = t_func.shade(vals,
+                       cmap=Inferno256,
+                       how='linear')
 
-    f.add_layout(legend, place='right')
+    img_plt = f.image_rgba(image=[img.data],
+                        x=x_start,
+                        y=y_start,
+                        dw=width,
+                        dh=height)
 
     probs_grid[i//2].append(f)
 
