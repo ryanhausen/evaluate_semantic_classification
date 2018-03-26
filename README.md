@@ -1,19 +1,13 @@
 # Evaluating Semantic Segmentation Classifier
 
-2018-03-19 /
-- Distributions of classifications for a single source pixel over the 
-the entirety of the classifying space
-- PDF, CDF for Top K class predictions, K=1,2,6
+Each subdirectory contains date-labelled updates.  This file provides topical summaries of the subdirectories.  Each subdirectory should have its own README containing information on the update.
 
-2018-03-20 /
-- Max/Mean/Std probabilities per pixel/ per class
-- Segmap based on P!=Bkg >= P==Bkg
-- PDF/CDF per class all pixels
+20180319/ Single Pixel Prediction Values    
+20180320/ Predictions Using Innermost 10x10
+20180323/ Refined Predictions Using Innermost 10x10
 
-2018-03-23 /
-- Sum(Mean/Max)(P!=Bkg) / P==Bkg. With olorbars
-- Segmap PDF/CDF, All PDF/CDF
 
+----------------------------------
 
 
 

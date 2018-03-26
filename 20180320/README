@@ -1,0 +1,3 @@
+- Max/Mean/Std probabilities per pixel/ per class 
+- Segmap based on P!=Bkg >= P==Bkg 
+- PDF/CDF per class all pixels 

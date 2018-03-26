@@ -1,2 +1,3 @@
-This directory examines how the predicted values of a single pixel change as
-it moves through the prediction map of the classifier.
+- Distributions of classifications for a single source pixel over the  
+the entirety of the classifying space 
+- PDF, CDF for Top K class predictions, K=1,2,6 
