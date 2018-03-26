@@ -11,7 +11,7 @@ from astropy.io import fits
 
 from bokeh.plotting import figure, output_file, show
 from bokeh.palettes import Spectral6, Reds3, Inferno256, Category10_6
-from bokeh.models import Div, Legend
+from bokeh.models import Div, Legend, LinearColorMapper, ColorBar
 from bokeh.layouts import column, row, gridplot
 import datashader as ds
 import datashader.glyphs
@@ -154,6 +154,10 @@ for i, (op_name, op) in enumerate(data_reductions):
     vals = np.add(vals, agg.unk)
     vals = np.divide(vals, agg.bkg)
 
+    color_mapper = LinearColorMapper(palette=Inferno256,
+                                     low=np.min(vals.data),
+                                     high=np.max(vals.data))
+
     img = t_func.shade(vals,
                        cmap=Inferno256,
                        how='linear')
@@ -163,6 +167,8 @@ for i, (op_name, op) in enumerate(data_reductions):
                         y=y_start,
                         dw=width,
                         dh=height)
+    cbar = ColorBar(color_mapper=color_mapper, location=(0,0))
+    f.add_layout(cbar, 'right')
 
     probs_grid[i//2].append(f)
 
