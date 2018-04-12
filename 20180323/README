@@ -1,2 +1,4 @@
-- Sum(Mean/Max)(P!=Bkg) / P==Bkg. With olorbars 
+- Sum(Mean/Max)(P!=Bkg) / P==Bkg. With colorbars 
 - Segmap PDF/CDF, All PDF/CDF 
+- retrained classifier with only 5 labels
+-- output statistics and animation for classifier
