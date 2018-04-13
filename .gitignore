@@ -2,3 +2,9 @@
 *.fits
 
 2018-03-20/points\.csv
+
+bokehjournal/
+
+*.csv
+
+20180413/valid_slices
