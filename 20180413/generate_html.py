@@ -32,7 +32,7 @@ GRAPH_HEIGHT = 600
 
 journal = Journal('2018-04-13')
 
-src_name = 'GDS_deep2_5961'
+src_name = 'GDS_deep2_5510'
 journal.append_h1(f'Examining {src_name}')
 
 
@@ -99,11 +99,11 @@ f.image(image=[segmap],
 journal.append_bokeh(f)
 del segmap
 
-
 journal.append_br(num=2)
 
 
-adjusted_x, adjusted_y = x-600, y-0
+adjusted_y = y
+adjusted_x = x-600
 print(adjusted_x, adjusted_y)
 
 x_start, x_end = adjusted_x-42, adjusted_x+42
@@ -119,8 +119,8 @@ if 'points.csv' not in os.listdir():
     roi_xs = np.arange(x_start, x_end, dtype=np.int32)
 
     print(x, y)
-    print(roi_xs)
-    print(roi_ys)
+    print(roi_xs, len(roi_xs))
+    print(roi_ys, len(roi_ys))
 
     def get_valid_pixels(slice_idx):
         """
@@ -153,7 +153,8 @@ if 'points.csv' not in os.listdir():
     data = { c:[] for c in columns}
 
     for slice_idx in range(slices.shape[0]):
-        print(slice_idx/slices.shape[0], end='\r')
+        #print(slice_idx/slices.shape[0], end='\r')
+        print('row:{}\tcol:{}\t\t\t\t'.format(slice_idx//361, slice_idx%361), end='\r')
         roi_coords = get_valid_pixels(slice_idx)
         if roi_coords:
             with open('valid_slices', 'a') as f:
@@ -180,7 +181,7 @@ data_reductions = [
 for i, (op_name, op) in enumerate(data_reductions):
     f = figure(x_range=[x_start, x_end],
                y_range=[y_start, y_end],
-               width=GRAPH_WIDTH+100,
+               width=GRAPH_WIDTH,
                height=GRAPH_HEIGHT,
                toolbar_location='above',
                title=f'{op_name} Probabilities Per Class')
@@ -190,8 +191,8 @@ for i, (op_name, op) in enumerate(data_reductions):
 
         canvas = datashader.Canvas(plot_width=x_end-x_start,
                                    plot_height=y_end-y_start,
-                                   x_range=[x_start, x_end],
-                                   y_range=[y_start, y_end])
+                                   x_range=[0, 150],
+                                   y_range=[0, 150])
 
         agg = canvas.points(data, 'x', 'y', agg=reduction_op)
         img = t_func.shade(agg,
