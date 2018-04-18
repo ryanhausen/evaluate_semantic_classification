@@ -32,7 +32,7 @@ GRAPH_HEIGHT = 600
 
 journal = Journal('2018-04-13')
 
-src_name = 'GDS_deep2_5510'
+src_name = 'GDS_deep2_5854'
 journal.append_h1(f'Examining {src_name}')
 
 
@@ -104,13 +104,12 @@ journal.append_br(num=2)
 
 adjusted_y = y
 adjusted_x = x-600
-print(adjusted_x, adjusted_y)
 
 x_start, x_end = adjusted_x-42, adjusted_x+42
 y_start, y_end = adjusted_y-42, adjusted_y+42
 
-slices = fits.getdata('../data/slices.fits')             #[num_slices, 40, 40, 1]
-predictions = fits.getdata('../data/slices_labels.fits') #[num_slices, 40, 40, 5]
+slices = fits.getdata('../data/data_201804/slices.fits')        #[num_slices, 40, 40, 1]
+predictions = fits.getdata('../data/data_201804/slices_labels.fits') #[num_slices, 40, 40, 5]
 
 columns = ['y', 'x', 'Spheroid', 'Disk', 'Irregular',
            'Point Source', 'Unknown', 'Background']
@@ -118,7 +117,6 @@ if 'points.csv' not in os.listdir():
     roi_ys = np.arange(y_start, y_end, dtype=np.int32)
     roi_xs = np.arange(x_start, x_end, dtype=np.int32)
 
-    print(x, y)
     print(roi_xs, len(roi_xs))
     print(roi_ys, len(roi_ys))
 
@@ -170,7 +168,10 @@ if 'points.csv' not in os.listdir():
 else:
     data = pd.read_csv('./points.csv')
 
-probs_grid = [[], []]
+data['x'] = data['x']-x_start
+data['y'] = data['y']-y_start
+
+cols = []
 
 data_reductions = [
     ('Mean', reductions.mean),
@@ -179,8 +180,8 @@ data_reductions = [
 ]
 
 for i, (op_name, op) in enumerate(data_reductions):
-    f = figure(x_range=[x_start, x_end],
-               y_range=[y_start, y_end],
+    f = figure(x_range=[0, 84],
+               y_range=[0, 84],
                width=GRAPH_WIDTH,
                height=GRAPH_HEIGHT,
                toolbar_location='above',
@@ -189,10 +190,10 @@ for i, (op_name, op) in enumerate(data_reductions):
     for morphology in columns[2:]:
         reduction_op = op(morphology)
 
-        canvas = datashader.Canvas(plot_width=x_end-x_start,
-                                   plot_height=y_end-y_start,
-                                   x_range=[0, 150],
-                                   y_range=[0, 150])
+        canvas = datashader.Canvas(plot_width=84,
+                                   plot_height=84,
+                                   x_range=[0,84],
+                                   y_range=[0, 84])
 
         agg = canvas.points(data, 'x', 'y', agg=reduction_op)
         img = t_func.shade(agg,
@@ -201,24 +202,26 @@ for i, (op_name, op) in enumerate(data_reductions):
                            how='linear')
 
         img_plt = f.image_rgba(image=[img.data],
-                            x=x_start,
-                            y=y_start,
-                            dw=x_end-x_start,
-                            dh=y_end-y_start,
+                            x=0,
+                            y=0,
+                            dw=84,
+                            dh=84,
                             visible=morphology=='Disk')
 
         items.append((morphology, [img_plt]))
 
+    print(len(items), items)
     legend = Legend(items=items,
                     location=(0,250),
                     click_policy='hide',
                     )
 
+
     f.add_layout(legend, place='right')
 
-    probs_grid[i//2].append(f)
+    cols.append(f)
 
-journal.append_bokeh(gridplot(probs_grid))
+journal.append_bokeh(column(cols))
 
 journal.show()
 
