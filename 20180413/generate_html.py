@@ -32,7 +32,7 @@ GRAPH_HEIGHT = 600
 
 journal = Journal('2018-04-13')
 
-src_name = 'GDS_deep2_5854'
+src_name = 'GDS_deep2_5540'
 journal.append_h1(f'Examining {src_name}')
 
 
@@ -117,9 +117,6 @@ if 'points.csv' not in os.listdir():
     roi_ys = np.arange(y_start, y_end, dtype=np.int32)
     roi_xs = np.arange(x_start, x_end, dtype=np.int32)
 
-    print(roi_xs, len(roi_xs))
-    print(roi_ys, len(roi_ys))
-
     def get_valid_pixels(slice_idx):
         """
         Input:  slice index
@@ -155,8 +152,6 @@ if 'points.csv' not in os.listdir():
         print('row:{}\tcol:{}\t\t\t\t'.format(slice_idx//361, slice_idx%361), end='\r')
         roi_coords = get_valid_pixels(slice_idx)
         if roi_coords:
-            with open('valid_slices', 'a') as f:
-                print(slice_idx, file=f)
             for abs_coords, rel_coords in roi_coords:
                 y, x = rel_coords
                 probs = predictions[slice_idx, y, x, :]
@@ -218,5 +213,5 @@ for i, (op_name, op) in enumerate(data_reductions):
 
 
 
-journal.show()
+journal.show(file_name='{}.html'.format(src_name))
 
