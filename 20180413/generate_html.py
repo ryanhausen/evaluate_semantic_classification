@@ -184,7 +184,7 @@ for i, (op_name, op) in enumerate(data_reductions):
                y_range=[0, 84],
                width=GRAPH_WIDTH,
                height=GRAPH_HEIGHT,
-               toolbar_location='above',
+               #toolbar_location='above',
                title=f'{op_name} Probabilities Per Class')
     items = []
     for morphology in columns[2:]:
@@ -202,26 +202,21 @@ for i, (op_name, op) in enumerate(data_reductions):
                            how='linear')
 
         img_plt = f.image_rgba(image=[img.data],
-                            x=0,
-                            y=0,
-                            dw=84,
-                            dh=84,
-                            visible=morphology=='Disk')
+                               x=0,
+                               y=0,
+                               dw=84,
+                               dh=84,
+                               visible=morphology=='Disk',
+                               legend=morphology)
 
         items.append((morphology, [img_plt]))
 
-    print(len(items), items)
-    legend = Legend(items=items,
-                    location=(0,250),
-                    click_policy='hide',
-                    )
+    f.legend.location = 'top_left'
+    f.legend.click_policy="hide"
+
+    journal.append_bokeh(f)
 
 
-    f.add_layout(legend, place='right')
-
-    cols.append(f)
-
-journal.append_bokeh(column(cols))
 
 journal.show()
 
