@@ -8,3 +8,9 @@ bokehjournal/
 *.csv
 
 20180413/valid_slices
+
+data\.tar\.gz
+
+*.png
+
+20180413/separate_probs/

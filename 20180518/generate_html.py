@@ -30,13 +30,13 @@ GRAPH_HEIGHT = 600
 # - produce graphs similar to the first graphs
 # ==============================================================================
 
-journal = Journal('2018-04-13')
+journal = Journal('2018-05-18')
 
-src_name = 'GDS_deep2_5510'
+src_name = 'GDS_deep2_5692'
 journal.append_h1(f'Examining {src_name}')
 
 
-with open('../data/data_201804/sources_with_locations_and_labels', 'r') as f:
+with open('../data/data_5class/sources_with_locations_and_labels', 'r') as f:
     for l in f:
         vals = l.split(',')
         if vals[0]==src_name:
@@ -57,16 +57,16 @@ journal.append_list(classifications)
 grid = [[], []]
 for i, band in enumerate('HJVZ'):
     if f'{band}.fits' not in os.listdir():
-        big_img = fits.getdata(f'../data/data_201804/{band}.fits')
-        small_img = big_img[y-42:y+42, x-42:x+42]
+        big_img = fits.getdata(f'../data/data_5class/{band}.fits')
+        small_img = big_img[y-60:y+60, x-60:x+60]
     else:
         small_img = fits.getdata(f'{band}.fits')
 
     f = figure(title=f'{band} Band Image',
                width=GRAPH_WIDTH,
                height=GRAPH_HEIGHT,
-               x_range=[0,84],
-               y_range=[0,84])
+               x_range=[0,120],
+               y_range=[0,120])
 
     f.image(image=[small_img],
             x=0,
@@ -84,7 +84,7 @@ del small_img
 journal.append_br(num=2)
 journal.append_paragraph('The human classified segmap looks like:')
 
-segmap = fits.getdata(f'../data/data_201804/segmaps/{src_name}_segmap.fits')
+segmap = fits.getdata(f'../data/data_5class/segmaps/{src_name}_segmap.fits')
 f = figure(title=f'{src_name} Segmap',
            width=GRAPH_WIDTH,
            height=GRAPH_HEIGHT,
@@ -105,14 +105,14 @@ journal.append_br(num=2)
 adjusted_y = y
 adjusted_x = x-600
 
-x_start, x_end = adjusted_x-42, adjusted_x+42
-y_start, y_end = adjusted_y-42, adjusted_y+42
+x_start, x_end = adjusted_x-60, adjusted_x+60
+y_start, y_end = adjusted_y-60, adjusted_y+60
 
-slices = fits.getdata('../data/data_201804/slices.fits')        #[num_slices, 40, 40, 1]
-predictions = fits.getdata('../data/data_201804/slices_labels.fits') #[num_slices, 40, 40, 5]
+slices = fits.getdata('../data/data_5class/slices.fits')        #[num_slices, 40, 40, 1]
+predictions = fits.getdata('../data/data_5class/slices_labels.fits') #[num_slices, 40, 40, 5]
 
 columns = ['y', 'x', 'Spheroid', 'Disk', 'Irregular',
-           'Point Source', 'Unknown', 'Background']
+           'Point Source', 'Background']
 if 'points.csv' not in os.listdir():
     roi_ys = np.arange(y_start, y_end, dtype=np.int32)
     roi_xs = np.arange(x_start, x_end, dtype=np.int32)
@@ -131,6 +131,7 @@ if 'points.csv' not in os.listdir():
         col = slice_idx % 361
 
         # get the absolute indicies of the inner 10x10 pixels for this slice
+
         ys = np.arange(row+15, row+25)
         xs = np.arange(col+15, col+25)
 
@@ -178,8 +179,8 @@ data_reductions = [
 ]
 
 for i, (op_name, op) in enumerate(data_reductions):
-    f = figure(x_range=[0, 84],
-               y_range=[0, 84],
+    f = figure(x_range=[0, 120],
+               y_range=[0, 120],
                width=GRAPH_WIDTH,
                height=GRAPH_HEIGHT,
                #toolbar_location='above',
@@ -188,12 +189,15 @@ for i, (op_name, op) in enumerate(data_reductions):
     for morphology in columns[2:]:
         reduction_op = op(morphology)
 
-        canvas = datashader.Canvas(plot_width=84,
-                                   plot_height=84,
-                                   x_range=[0,84],
-                                   y_range=[0, 84])
+        canvas = datashader.Canvas(plot_width=120,
+                                   plot_height=120,
+                                   x_range=[0,120],
+                                   y_range=[0, 120])
 
         agg = canvas.points(data, 'x', 'y', agg=reduction_op)
+        if morphology=='Background':
+            np.save(f'{src_name}-background-{op_name}', agg.values)
+
         img = t_func.shade(agg,
                            cmap=Inferno256,
                            span=[0,0.5] if op_name=='Standard Deviation' else [0,1],
@@ -202,8 +206,8 @@ for i, (op_name, op) in enumerate(data_reductions):
         img_plt = f.image_rgba(image=[img.data],
                                x=0,
                                y=0,
-                               dw=84,
-                               dh=84,
+                               dw=120,
+                               dh=120,
                                visible=morphology=='Disk',
                                legend=morphology)
 
