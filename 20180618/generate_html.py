@@ -186,23 +186,25 @@ f = figure(x_range=[0, size[1]],
            toolbar_location=None,
            title='Segmap Based On Watershedding')
 
+print(Category10[6])
 colors = []
-for c in Inferno256:
+for c in Category10[6]:
     c = c[1:]
-    rgb = RGB(*tuple([int(c[i:i+2], 16) for i in (0, 2 ,4)] + [1.0]))
+    rgb = RGB(*tuple([int(c[i:i+2], 16) for i in (0, 2 ,4)] + [0.7]))
     colors.append(rgb)
 
 items = []
 for data, name in [(bkg, 'Background'), (segmap, 'Segmap')]:
-    cmap = LinearColorMapper(palette=Inferno256 if name=='Segmap' else Inferno256,
+    cmap = LinearColorMapper(palette=colors if name=='Segmap' else Inferno256,
                              low=data.min(),
                              high=data.max())
     img = f.image(image=[data],
                        x=[0],
                        y=[0],
+                       #global_alpha=0.5,
                        dw=[data.shape[1]],
                        dh=[data.shape[0]],
-                       palette=Inferno256,
+                       color_mapper=cmap,
                        legend=name)
     items.append((name, [img]))
 f.legend.click_policy = 'hide'
