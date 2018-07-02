@@ -1,0 +1,17 @@
+To generate the files I did the following:
+
+1. read is all the noise pixels, according to our segmap
+2. randomly select pixels, with replacement, from that collection to 
+   generate an image of [200,200], and make it strictly positive
+-- H_Noise.fits
+3. Move randomly sample circles with an r=5 pixels from the noise image
+   and measure the sum of the pixels. Then take the square root of the 
+   mean of the square of all the summed aperature pixel values and set as the
+   value 'rms'
+4. make a matrix of pixel distances from the center
+5. generate an exponenetial using thos values, with an Re of 5 pixels
+6. apply the following to the source pixels: 
+   source = source * ((factor * rms) / sum(source pixels within pixels))
+-- source-1.fits, source-10.fits (the number indicates the value for factor)
+7. add the noise and the source pixels element wise
+-- combined-1.fits, combined-10.fits
