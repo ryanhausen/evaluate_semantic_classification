@@ -26,79 +26,73 @@ def img_plot(arr, saveto=None):
         if saveto:
             plt.savefig(saveto)
 
-# get noise
-segmap = fits.getdata('segmap.fits')
-h = fits.getdata('h.fits')
-j = fits.getdata('j.fits')
-v = fits.getdata('v.fits')
-z = fits.getdata('z.fits')
+def get_rms(noise_img, aperature, num_samples):
+    ax0_buffer = np.sum(aperature, axis=0).max() / 2
+    ax1_buffer = np.sum(aperature, axis=1).max() / 2
+    ax0_shift = int(noise_img.shape[0]//2 - ax0_buffer)
+    ax1_shift = int(noise_img.shape[1]//2 - ax1_buffer)
+    rms_vals = []
+    for _ in range(num_samples):
+        s0 = np.random.randint(ax0_shift) * 1 if np.random.randint(2) else -1
+        s1 = np.random.randint(ax1_shift) * 1 if np.random.randint(2) else -1
 
-img_size = [200, 200]
-make_noise = lambda a: np.random.choice(a, size=img_size)
+        shifted_aperature = np.roll(aperature, (s0,s1), axis=(0,1))
 
-noise = segmap==1
-all_noise = [make_noise(b[noise]) for b in [h,j,v,z]]
-print(np.sum(all_noise[0]<0))
-all_noise = [a + abs(a.min()) + 1e-6 for a in all_noise]
+        rms_vals.append(noise_img[shifted_aperature].sum())
 
-for b, noise in zip('HJVZ', all_noise):
-    img_plot(noise, saveto=f'{b}.pdf')
-
-if 'H_Noise.fits' in os.listdir():
-    all_noise[0] = fits.getdata('H_Noise.fits')
-else:
-    fits.PrimaryHDU().writeto('H_Noise.fits')
-
-cx, cy = int(img_size[0] // 2), int(img_size[1] // 2)
-xs, ys = np.meshgrid(np.arange(img_size[0]), np.arange(img_size[1]))
-rs = np.sqrt((xs-cx)**2 + (ys-cy)**2)
-img_plot(rs, saveto='rs.pdf')
-
-# make source
-
-re = 5
-
-aperature = rs < re
-num_samples = 6
-ax0_shift = int(img_size[0]//2 - re)
-ax1_shift = int(img_size[1]//2 - re)
-rms_vals = []
-for _ in range(num_samples):
-    s0 = np.random.randint(ax0_shift) * 1 if np.random.randint(2) else -1
-    s1 = np.random.randint(ax1_shift) * 1 if np.random.randint(2) else -1
-
-    shifted_aperature = np.roll(aperature, (s0,s1), axis=(0,1))
-    img_plot(shifted_aperature)
-
-    rms_vals.append(all_noise[0][shifted_aperature].sum())
-
-rms = np.sqrt(np.mean(np.square(rms_vals)))
-print(rms, rms_vals)
+    return np.sqrt(np.mean(np.square(rms_vals)))
 
 def sersic(Ie, Re, R, m):
     bm = 2.0*m - 0.324
     return Ie * np.exp(-bm * ((R/Re)**(1/m) - 1))
 
-factor = 1
-s = sersic(1, re, rs, 1)
-s *= factor * rms / (s[aperature].sum())
+def fits_write(a, path, file_name):
+    if file_name in os.listdir(path):
+        os.remove(os.path.join(path, file_name))
+    fits.PrimaryHDU(a).writeto(os.path.join(path, file_name))
 
-fits.PrimaryHDU(s).writeto('source-{}.fits.'.format(factor))
+def main():
 
-plt.figure()
-plt.hist(all_noise[0].flatten(), bins=100, alpha=0.7, label='Noise')
-plt.hist(s[aperature].flatten(), alpha=0.7, label='source')
-plt.yscale('log', nonposy='clip')
-plt.legend()
-plt.savefig('noise_source-{}.png'.format(factor))
+    # get noise
+    segmap = fits.getdata('segmap.fits')
+    h = fits.getdata('h.fits')
+    j = fits.getdata('j.fits')
+    v = fits.getdata('v.fits')
+    z = fits.getdata('z.fits')
 
-fits.PrimaryHDU(s + all_noise[0]).writeto('combined-{}.fits'.format(factor))
+    img_size = [200, 200]
+    make_noise = lambda a: np.random.choice(a, size=img_size)
 
+    noise = segmap==1
+    all_noise = [make_noise(b[noise]) for b in [h,j,v,z]]
+    all_noise = [a + abs(a.min()) + 1e-6 for a in all_noise]
 
-print(s[aperature].sum()/rms)
+    for b, noise in zip('HJVZ', all_noise):
+        img_plot(noise, saveto=f'figs/{b}.pdf')
 
-img_plot(s, saveto='source.pdf')
+    cx, cy = int(img_size[0] // 2), int(img_size[1] // 2)
+    xs, ys = np.meshgrid(np.arange(img_size[0]), np.arange(img_size[1]))
+    rs = np.sqrt((xs-cx)**2 + (ys-cy)**2)
+    img_plot(rs, saveto='figs/rs.pdf')
 
-img_plot(s + all_noise[0], saveto='h_combined.pdf')
+    # make source
+    re = 5
 
-# save files to be classified
+    aperature = rs < re
+    num_samples = 6
+
+    for factor in [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+        s = sersic(1, re, rs, 1)
+
+        source = []
+        for n in all_noise:
+            rms = get_rms(n, aperature, num_samples)
+            source.append(s * (factor * rms / s[aperature].sum()))
+
+        fits_write(np.array(source), './fits', f'source-{factor}.fits')
+
+        combined = [all_noise[i]+source[i] for i in range(len(all_noise))]
+        fits_write(np.array(combined), './fits', f'combined-{factor}.fits')
+
+if __name__=='__main__':
+    main()
