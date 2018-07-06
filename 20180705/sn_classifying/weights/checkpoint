@@ -1,0 +1,6 @@
+model_checkpoint_path: "-10059"
+all_model_checkpoint_paths: "convnet_semantic_segmentation.ckpt-10021"
+all_model_checkpoint_paths: "convnet_semantic_segmentation.ckpt-10031"
+all_model_checkpoint_paths: "convnet_semantic_segmentation.ckpt-10041"
+all_model_checkpoint_paths: "convnet_semantic_segmentation.ckpt-10051"
+all_model_checkpoint_paths: "-10059"

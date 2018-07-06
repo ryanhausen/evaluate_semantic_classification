@@ -1,0 +1,21 @@
+
+Directories:
+input/
+    the fits files that were classified
+all_bands/ 
+    The output classifications using the files in the input directory 
+    and using an only the inner 30x30 
+hj/
+    The output classifications using only the h and j files in the input 
+    directory and using an only the inner 30x30
+old/
+    The output from using the input files and the entire classification ouput
+    
+Files:
+all40.png - the mean and variance for the background from 'old' dir
+inner30.png - the mean and variance for the background from 'all_bands' dir
+inner30hj.png - the mean and variance for the background from 'hj' dir
+all40-inner30.png - the inner30 values subracted from the all40 values
+inner30-inner30hj.png - the inner30hj values subtracted from the inner 30 values
+compare.py - used to create the files
+
