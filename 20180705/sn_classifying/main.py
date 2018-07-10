@@ -4,7 +4,9 @@ from PIL import Image
 import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt
+from scipy.ndimage import convolve
 
+import generate_source
 
 def img_plot(arr, saveto=None):
     img_style = {
@@ -92,18 +94,18 @@ def elliptical_transform(img, center, re, ratio):
     return np.array(im)
 
 def main():
-
-    # exponential
-    #src_func = lambda re, rs: sersic(1, re, rs, 1)
-    # de Vaucouleurs
-    src_func = lambda re, rs: sersic(1, re, rs, 4)
-
     # get noise
     segmap = fits.getdata('segmap.fits')
     h = fits.getdata('h.fits')
     j = fits.getdata('j.fits')
     v = fits.getdata('v.fits')
     z = fits.getdata('z.fits')
+
+    tt_h = fits.getdata('tinytim/h.fits')
+    tt_j = fits.getdata('tinytim/j.fits')
+    tt_v = fits.getdata('tinytim/v.fits')
+    tt_z = fits.getdata('tinytim/z.fits')
+    tiny_tims = [tt_h, tt_j, tt_v, tt_z]
 
     img_size = [250, 250]
     make_noise = lambda a: np.random.choice(a, size=img_size)
@@ -117,38 +119,40 @@ def main():
 
     re = 5
     src_per_row = img_size[0] // (12*re)
-    xs = [x for x in range(12*re, src_per_row*(12*re), 12*re)]
+    src_xs = [x for x in range(12*re, src_per_row*(12*re), 12*re)]
 
     src_per_col = img_size[1] // (12*re)
-    ys = [y for y in range(12*re, src_per_col*(12*re), 12*re)]
-
-    centers = []
-    for y in ys:
-        for x in xs:
-            centers.append((y,x))
-
+    src_ys = [y for y in range(12*re, src_per_col*(12*re), 12*re)]
     xs, ys = np.meshgrid(np.arange(img_size[0]), np.arange(img_size[1]))
 
+
+    centers = []
     rs = []
-    for cy, cx in centers:
-        _rs = np.sqrt((xs-cx)**2 + (ys-cy)**2)
-        rs.append(_rs)
-
-
+    for y in src_ys:
+        for x in src_xs:
+            centers.append((y,x))
+            rs.append(np.sqrt((xs-x)**2 + (ys-y)**2))
 
     aperature_rs = np.sqrt((xs-(img_size[1]//2))**2 + (ys-(img_size[0]//2))**2)
     aperature = aperature_rs < re
     num_samples = 1000
     rms_vals = [get_rms(n, aperature, num_samples) for n in all_noise]
 
-    factors = np.linspace(1, 10, num=len(rs))
+    factors = np.linspace(1, 10, num=len(centers))
     for i, factor in enumerate(factors):
 
-        s = src_func(re, rs[i])
+        s = generate_source.exponential(img_size,
+                                        centers[i][1],
+                                        centers[i][0],
+                                        1,
+                                        re,
+                                        simple=False)
 
         source = []
-        for rms in rms_vals:
+        for j, rms in enumerate(rms_vals):
+            #s = convolve(s, tiny_tims[j])
             src_adj = s * (factor * rms / s[rs[i]<re].sum())
+            src_adj = convolve(src_adj, tiny_tims[j])
             #src_adj = elliptical_transform(src_adj, centers[i], re, factor)
             source.append(src_adj)
 
