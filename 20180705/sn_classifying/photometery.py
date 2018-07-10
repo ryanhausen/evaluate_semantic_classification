@@ -64,7 +64,7 @@ def find_local_minima(a):
 
 
 def get_neighborhood(a, i, j):
-    size = 2
+    size = 3
 
     y_min = max(i-size, 0)
     y_max = min(i+size+1, a.shape[0])
@@ -87,6 +87,10 @@ def morphological_classfication(morph_means, morph_var, src_map):
         numerator = (numerator * src_map).sum()
         denominator = (denominator * src_map).sum()
         classification[i] = numerator/denominator
+    # for i in range(num_classes):
+    #     classification[i] = (morph_means[i,:,:] * src_map).sum()
+
+
 
     return classification / classification.sum()
 
@@ -116,11 +120,11 @@ def main():
             cl.append(c)
 
     plt.figure()
-    plt.plot(sn, sph, label='Spheroid')
-    plt.plot(sn, disk, label='Disk')
-    plt.plot(sn, irr, label='Irregular')
-    plt.plot(sn, ps, label='Point Source')
-    plt.xlabel('Signal/Noise')
+    plt.plot(sn, sph, color='r', label='Spheroid')
+    plt.plot(sn, disk, color='b', label='Disk')
+    plt.plot(sn, irr, color='g', label='Irregular')
+    plt.plot(sn, ps, color='y', label='Point Source')
+    plt.xlabel('Sersic Index (n)')
     plt.ylabel('P$(src=class)$')
     plt.legend()
     plt.savefig('./figs/morph.pdf')

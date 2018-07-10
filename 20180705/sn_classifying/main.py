@@ -141,12 +141,20 @@ def main():
     factors = np.linspace(1, 10, num=len(centers))
     for i, factor in enumerate(factors):
 
-        s = generate_source.exponential(img_size,
+        s = generate_source.deVaucouleurs(img_size,
                                         centers[i][1],
                                         centers[i][0],
                                         1,
                                         re,
                                         simple=False)
+        # s = generate_source.sersic_n(img_size,
+        #                              centers[i][1],
+        #                              centers[i][0],
+        #                              1,
+        #                              re,
+        #                              4,
+        #                              simple=False)
+
 
         source = []
         for j, rms in enumerate(rms_vals):

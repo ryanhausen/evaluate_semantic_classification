@@ -3,8 +3,11 @@ import json
 import os
 
 import numpy as np
-from scipy.integrate import quad, dblquad
 import matplotlib.pyplot as plt
+from astropy.io import fits
+from scipy.integrate import quad, dblquad
+from scipy.ndimage import convolve
+
 
 def sersic(Ie, Re, R, n):
     bm = 2.0*n - 0.324
@@ -27,6 +30,13 @@ def deVaucouleurs(size, cy, cx, Ie, Re, simple=False):
     else:
         f = lambda x, y: sersic_cart(Ie, Re, x, y, 4)
         return _gen_source(size, cy, cx, f, 'deVaucouleurs')
+
+def sersic_n(size, cy, cx, Ie, Re, n, simple=False):
+    if simple:
+        return _simple_gen_source(size, cy, cx, lambda r: sersic(Ie, Re, r, n))
+    else:
+        f = lambda x, y: sersic_cart(Ie, Re, x, y, n)
+        return _gen_source(size, cy, cx, f, f'n-{n}')
 
 def _simple_gen_source(size, cy, cx, f):
     ys, xs = np.meshgrid(np.arange(size[0]), np.arange(size[1]))
@@ -77,10 +87,15 @@ def main():
 
     rs = np.sqrt(xs**2 + ys**2)
 
+    tt = fits.getdata('./tinytim/v.fits')
+
     exp = exponential(size, cy, cx, ie, re)
     dv = deVaucouleurs(size, cy, cx, ie, re)
 
-    for img, name in zip([exp, dv], ['Exponential', 'de Vaucouleurs']):
+    tt_exp = convolve(exp, tt)
+    tt_dv = convolve(dv, tt)
+
+    for img, name in zip([exp, dv, tt_exp, tt_dv], ['Exponential', 'de Vaucouleurs', 'Exp with TinyTim', 'de Vaucouleurs with Tiny Tim']):
         f, (a1, a2) = plt.subplots(nrows=2)
         f.suptitle(name)
         a1.imshow(np.log10(img), cmap='gray', origin='lower')
