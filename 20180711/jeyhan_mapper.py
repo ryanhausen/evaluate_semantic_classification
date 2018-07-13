@@ -13,6 +13,7 @@ def get_label(src):
 def main():
     large_header = fits.getheader('hlsp_candels_hst_wfc3_gs-tot_f125w_v1.0_drz.fits')
     offset_y, offset_x = 12000, 7300
+    input_img = fits.getdata('./input/small125.fits')
 
     src_data = []
     imgs = os.listdir('./jeyhan_imgs')
@@ -25,6 +26,14 @@ def main():
         x = int(large_header['CRPIX1'] - header['CRPIX1']) + 42
 
         adj_y, adj_x = y - offset_y, x - offset_x
+
+        out_of_bounds = adj_y > input_img.shape[0] or adj_x > input_img.shape[1]
+        if out_of_bounds:
+            continue
+
+        invalid_pixel = input_img[adj_y, adj_x]==0
+        if invalid_pixel:
+            continue
 
         src = img.replace('.fits', '')
         lbl = get_label(src)

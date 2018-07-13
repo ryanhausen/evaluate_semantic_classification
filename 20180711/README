@@ -1,0 +1,90 @@
+
+Update
+================================================================================
+The current morhpological accuracy is:
+
+Top 1:  0.59457111835
+The class with the highest probability is the same.
+
+Average Top 2:  0.737242128122
+The top two classes are the same, irrespective of order
+
+Average In Top 2:  0.836699239957
+Our top 1 class is one of the top 2 classes in the label
+================================================================================
+
+In this directory:
+
+/classifications 
+- contains the outputs from the classifier for the HJ image
+
+/input
+- contains the H and J band images given to the classifier
+
+/jeyhan_imgs
+- contains the H band postage stamps from Jeyhan
+
+/output
+- contains a directory for each image from jeyhan that is also in the image 
+  we classified. In each directory there is the H band image from jeyhan,
+  a 4x84x84 matrix containing the mean values for each class, a 4x84x84 matrix
+  containing the variance values for each class, the segmap that was generated
+  with the id given to the source stored in the name. For example, if a segmap
+  is called segmap-3.fits then the part of the segmap that belongs to the source
+  we care about is 3 in the segmap.
+
+labels.csv
+- The labels from jeyhan's paper
+
+mapped_srcs.csv
+- a csv with the following columns:
+  src_name 
+  y coordinate in large candels image
+  x coordinate in large candels image
+  y coordinate in our subset of the large image
+  x coordinate in out subset of the large image
+  jeyhan label spheroid
+  jeyhan label disk
+  jeyhan label irregular
+  jeyhan label point source
+
+output_summary.csv
+- a csv with the following columns:
+  src_name 
+  y coordinate in large candels image
+  x coordinate in large candels image
+  y coordinate in our subset of the large image
+  x coordinate in out subset of the large image
+  jeyhan label spheroid
+  jeyhan label disk
+  jeyhan label irregular
+  jeyhan label point source
+  our spheroid
+  our disk
+  our irregular
+  our point source
+
+source_scores.csv
+- a csv with the following columns:
+  src_name
+  cross_entropy
+  top_1 accuracy (1 or 0) 
+  top_2 accuracy (1, 0.5, 0)  # we can have one of the two right
+
+confusion.pdf
+- The confusion matrix for Top1 unormalized
+
+confusion_2.pdf
+- The confusion matrix for top 2 classes, order matters
+
+confusion_3.pdf
+- The confusion matrix for top 2 classes, order doesn't matter
+
+normalize_confusion.pdf
+- The confusion matrix for Top1 unormalized
+
+normalize_confusion_2.pdf
+- The confusion matrix for top 2 classes, order matters
+
+normalize_confusion_3.pdf
+- The confusion matrix for top 2 classes, order doesn't matter

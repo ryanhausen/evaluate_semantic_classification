@@ -1,0 +1,46 @@
+varying sersic n, with constant s/n of 10
+
+
+The following files are RGBA representations of the morphological profiles:
+
+- 1-color-classification.pdf
+- 2-color-classification.pdf
+- 3-color-classification.pdf
+- 4-color-classification.pdf
+
+Each morphology was assigned a color, as indicated in the legend:
+Spheroid:     Red
+Disk:         Blue
+Irregular:    Green
+Point Source: Yellow
+
+The '#-color' desgination how many of the classes were used to generate the
+'RGB' portion of the pixel value, the 'A' portion is equal to 1-background.
+For example in the 2-color-classificaiton.pdf the top 2 mean classification
+values were used. 
+
+The 4-color separates each class into its own pixel. So the resulting
+image is twice as big as the input image. It tranlates as follows:
+
+output_pixel[i,j] = spheroid_mean[i,j] (red)
+output_pixel[i+1,j] = disk_mean[i,j] (blue)
+output_pixel[i, j+1] = irregular_mean[i,j] (green)
+output_pixel[i+1, j+1] = point_source_mean[i,j] (yellow)
+
+The res of the files I believe you have seen before.
+
+
+- background.pdf
+- background_mean.fits
+- background_var.fits
+- combined-1.0-2.125-3.25-4.375-5.5-6.625-7.75-8.875-10.0.fits (input)
+- disk_mean.fits
+- disk_var.fits
+- irregular_mean.fits
+- irregular_var.fits
+- spheroid_mean.fits
+- spheroid_var.fits
+- morph.pdf
+- n.fits
+- point_source_mean.fits
+- point_source_var.fits

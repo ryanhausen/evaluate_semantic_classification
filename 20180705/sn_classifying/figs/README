@@ -1,0 +1,28 @@
+I have updated the source generation routine to calculate the integral
+of the sersic profile over x and y using https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.integrate.dblquad.html
+
+I also included the tiny tim convolution and I think the results look better
+
+So now the pipeline to generate a source looks like this:
+
+1. generate the source using the integral over the pixel area, for each pixel
+2. adjust the image values to have the proper s/n ratio
+3. convolve with tinytim for the approprate band
+4. add to noise
+
+I have played with the ordering some and this seems to have the best results
+
+In this directory:
+
+/dv_with_colors
+- shows results for updated De Vaucouleurs over varying s/n
+
+/exp_with_colors
+- shows results for updated exponential over varying s/n
+
+/validate_sbp
+- a sanity check on the values generated using the integral
+
+/varying_n_with_colors
+- shows results for varying sersic index over constanst s/n of 10
+

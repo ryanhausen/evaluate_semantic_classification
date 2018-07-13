@@ -9,9 +9,9 @@ import pandas as pd
 from astropy.io import fits
 
 from bokeh.plotting import figure, output_file, show
-from bokeh.palettes import Spectral6, Reds3, Inferno256, Category20_20, Greys256
+from bokeh.palettes import Spectral6, Reds3, Inferno256, Category20_20, Greys256, Inferno
 from bokeh.models import Div, Legend, HoverTool, ColorBar
-from bokeh.models.mappers import LinearColorMapper
+from bokeh.models.mappers import LinearColorMapper, LogColorMapper
 from bokeh.layouts import column, row, gridplot
 from bokeh.colors import RGB
 import datashader as ds
@@ -152,6 +152,8 @@ for i in range(bkg.shape[0]):
 masked_min = masked_min + local_min
 segmap = watershed(bkg, masked_min)
 
+fits.PrimaryHDU(segmap).writeto('segmap.fits')
+
 journal.append_br(num=1)
 
 f = figure(x_range=[0, size[1]],
@@ -167,6 +169,14 @@ for c in Category20_20:
     rgb = RGB(*tuple([int(c[i:i+2], 16) for i in (0, 2 ,4)] + [0.5]))
     colors.append(rgb)
 
+icolors = []
+for c in Category20_20:
+    c = c[1:]
+    rgb = RGB(*tuple([int(c[i:i+2], 16) for i in (0, 2 ,4)] + [0.5]))
+    icolors.append(rgb)
+
+
+
 items = []
 results = [
     (imgs[0], 'H', Greys256),
@@ -179,13 +189,15 @@ for data, name, palette in results:
     cmap = LinearColorMapper(palette=palette,
                              low=data.min(),
                              high=data.max())
+                             
+    log_cmap = LogColorMapper(palette=palette)
     img = f.image(image=[data],
                        x=[0],
                        y=[0],
                        #global_alpha=0.5,
                        dw=[data.shape[1]],
                        dh=[data.shape[0]],
-                       color_mapper=cmap,
+                       color_mapper=log_cmap if name in 'HJVZ' else cmap,
                        legend=name)
     items.append((name, [img]))
 f.legend.click_policy = 'hide'

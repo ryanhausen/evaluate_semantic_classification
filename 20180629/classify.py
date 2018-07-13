@@ -60,15 +60,15 @@ def classify_img(*ignore,
     count = 1
     print('Total number of batches to be processed {}'.format(num_batches))
     progress = '{}% est time: {}'
-    
+
     total_time = 0
     while True:
         complete = round(count/num_batches, 4)
         start = time.time()
         print(progress.format(complete, get_pretty_time(total_time,count,num_batches)), end='\r')
         count += 1
-        
-        
+
+
         batch = []
         batch_idx = []
 
@@ -111,7 +111,7 @@ def classify_img(*ignore,
 
                 m[0][y:y+INPUT_H, x:x+INPUT_W] = curr_mean
                 m[1][y:y+INPUT_H, x:x+INPUT_W] = curr_var
-                
+
         total_time += time.time()-start
         if done:
             break
@@ -153,8 +153,32 @@ def _run_classifier(batch):
     return tf_session.run(classifier, feed_dict={x:batch})
 
 
-def _validate_args(ignore, h, j, v, z):
-    if ignore:
+def _validate_out_files = [
+        'spheroid_mean.fits'
+        'spheroid_var.fits'
+        'disk_mean.fits'
+        'disk_var.fits'
+        'irregular_mean.fits'
+        'irregular_var.fits'
+        'point_source_mean.fits'
+        'point_source_var.fits'
+        'background_mean.fits'
+        'background_var.fits'
+        'n.fits'
+    ]
+    if ignore:out_files = [
+        'spheroid_mean.fits'
+        'spheroid_var.fits'
+        'disk_mean.fits'
+        'disk_var.fits'
+        'irregular_mean.fits'
+        'irregular_var.fits'
+        'point_source_mean.fits'
+        'point_source_var.fits'
+        'background_mean.fits'
+        'background_var.fits'
+        'n.fits'
+    ]
         raise Exception('Positional arguments are not allowed, please use named arguments')
 
     # validate files names
@@ -181,7 +205,7 @@ def _validate_args(ignore, h, j, v, z):
                 raise Exception(msg)
 
         hdul.close()
-        
+
     return naxis1, naxis2
 
 def _prepare_files(naxis1, naxis2, h, j, v, z):

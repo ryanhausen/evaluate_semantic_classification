@@ -1,0 +1,13 @@
+In this directory:
+
+/validate_sbp 
+ - Contains a sanity check for the integral over pixel area method
+/dv_with_colors
+ - Contains the morphological classifications and input image for a source
+   with a sersic profile where n=4 over varying s/n ratios
+/exp_with_colors
+ - Contains the morphological classifications and input image for a source
+   with a sersic profile where n=1 over varying s/n ratios
+/vary_n_with_colors
+ - Contains the morphological classifications and input image for a source
+   with a sersic profile where n varies and the s/n ratio is 10

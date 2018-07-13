@@ -132,15 +132,15 @@ if 'points.csv' not in os.listdir():
 
         # get the absolute indicies of the inner 10x10 pixels for this slice
 
-        ys = np.arange(row+15, row+25)
-        xs = np.arange(col+15, col+25)
+        ys = np.arange(row, row+40)
+        xs = np.arange(col, col+40)
 
         roi_pixels = []
-        for i in range(10):
-            for j in range(10):
+        for i in range(40):
+            for j in range(40):
                 if (ys[i] in roi_ys) and (xs[j] in roi_xs):
                     abs_coords = (ys[i], xs[j])
-                    rel_coords = (15+i, 15+j)
+                    rel_coords = (i, j)
                     roi_pixels.append((abs_coords, rel_coords))
 
         return roi_pixels if len(roi_pixels) > 0 else None
@@ -195,8 +195,8 @@ for i, (op_name, op) in enumerate(data_reductions):
                                    y_range=[0, 120])
 
         agg = canvas.points(data, 'x', 'y', agg=reduction_op)
-        if morphology=='Background':
-            np.save(f'{src_name}-background-{op_name}', agg.values)
+        if op_name=='Standard Deviation':
+            np.save(f'{src_name}-{morphology}-std', agg.values)
 
         img = t_func.shade(agg,
                            cmap=Inferno256,

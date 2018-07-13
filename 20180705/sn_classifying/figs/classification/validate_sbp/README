@@ -1,0 +1,9 @@
+I used https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.integrate.dblquad.html
+to integrate the sersic function over x and y for each pixel and used those
+values for the image, which is in log scaling
+
+Then the graph is the surface brightness profile with log scaling in blue
+and the ration of total light in for the source in red in with linear scaling
+
+validate_dv.png is for a sersic n=4
+validate_exponential.png is for a sersic n=1

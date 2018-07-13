@@ -13,6 +13,7 @@ from bokeh.palettes import Spectral6, Reds3, Inferno256, Category10
 from bokeh.models import Div, Legend, HoverTool
 from bokeh.models.mappers import LinearColorMapper
 from bokeh.layouts import column, row, gridplot
+from bokeh.colors import RGB
 import datashader as ds
 import datashader.glyphs
 import datashader.transfer_functions as t_func
@@ -140,20 +141,20 @@ f = figure(x_range=[0, size[1]],
 colors = []
 for c in Inferno256:
     c = c[1:]
-    rgb = tuple([int(c[i:i+2], 16) for i in (0, 2 ,4)] + [0])
+    rgb = RGB(*tuple([int(c[i:i+2], 16) for i in (0, 2 ,4)] + [1.0]))
     colors.append(rgb)
 
 items = []
 for data, name in [(bkg, 'Background'), (segmap, 'Segmap')]:
-    cmap = LinearColorMapper(palette='Inferno256',
+    cmap = LinearColorMapper(palette=colors if name=='Segmap' else Inferno256,
                              low=data.min(),
                              high=data.max())
-    img = f.image(image=[data],
+    img = f.image_rgba(image=[data],
                        x=[0],
                        y=[0],
                        dw=[data.shape[1]],
                        dh=[data.shape[0]],
-                       color_mapper=cmap)
+                       color=Inferno256)
     items.append((name, [img]))
 legend = Legend(items=items, location='top_right')
 legend.click_policy = 'hide'
